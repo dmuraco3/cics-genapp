@@ -69,6 +69,9 @@ The general insurance application comprises the following programs:
 | `LGAPOL01` | Add policy business logic
 | `LGAPVS01` | Add policy details to VSAM file
 | `LGASTAT1` | Update transaction counts by using named counters
+| `LGDCDB01` | Delete customer record from Db2 database
+| `LGDCOL01` | Delete customer business logic
+| `LGDCVS01` | Delete customer record from VSAM file
 | `LGDPDB01` | Delete policy record from Db2 database
 | `LGDPOL01` | Delete policy business logic
 | `LGDPVS01` | Delete policy record from VSAM file
