@@ -20,7 +20,7 @@ SSMAPC1 DFHMDI SIZE=(24,80)
         DFHMDF POS=(5,08),LENGTH=16,ATTRB=(NORM,ASKIP),                X
                INITIAL='2. Cust Add     '
         DFHMDF POS=(6,08),LENGTH=16,ATTRB=(NORM,ASKIP),                X
-               INITIAL='                '
+               INITIAL='3. Cust Delete  '
         DFHMDF POS=(7,08),LENGTH=16,ATTRB=(NORM,ASKIP),                X
                INITIAL='4. Cust Update  '
 *

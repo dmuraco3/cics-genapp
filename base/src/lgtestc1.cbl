@@ -77,7 +77,7 @@
                      END-EXEC.
 
            EXEC CICS RECEIVE MAP('SSMAPC1')
-                     INTO(SSMAPC1I) ASIS
+                     INTO(SSMAPC1I) ASIS TERMINAL
                      MAPSET('SSMAP') END-EXEC.
 
 
@@ -145,6 +145,67 @@
                  END-EXEC
                  GO TO ENDIT-STARTIT
 
+             WHEN '3'
+                Move '01ICUS'    To CA-REQUEST-ID
+                Move ENT1CNOO    To CA-CUSTOMER-NUM
+                 EXEC CICS LINK PROGRAM('LGICUS01')
+                           COMMAREA(COMM-AREA)
+                           LENGTH(32500)
+                 END-EXEC
+                 IF CA-RETURN-CODE > 0
+                   GO TO NO-DATA
+                 END-IF
+
+                 Move CA-FIRST-NAME to ENT1FNAI
+                 Move CA-LAST-NAME  to ENT1LNAI
+                 Move CA-DOB        to ENT1DOBI
+                 Move CA-HOUSE-NAME to ENT1HNMI
+                 Move CA-HOUSE-NUM  to ENT1HNOI
+                 Move CA-POSTCODE   to ENT1HPCI
+                 Move CA-PHONE-HOME    to ENT1HP1I
+                 Move CA-PHONE-MOBILE  to ENT1HP2I
+                 Move CA-EMAIL-ADDRESS to ENT1HMOI
+                 EXEC CICS SEND MAP ('SSMAPC1')
+                           FROM(SSMAPC1O)
+                           MAPSET ('SSMAP')
+                 END-EXEC
+                 EXEC CICS RECEIVE MAP('SSMAPC1')
+                           INTO(SSMAPC1I) ASIS TERMINAL
+                           MAPSET('SSMAP') END-EXEC
+
+                 Move '01DCUS'   To CA-REQUEST-ID
+                 Move ENT1CNOI   To CA-CUSTOMER-NUM
+                 Move ENT1FNAI   To CA-FIRST-NAME
+                 Move ENT1LNAI   To CA-LAST-NAME
+                 Move ENT1DOBI   To CA-DOB
+                 Move ENT1HNMI   To CA-HOUSE-NAME
+                 Move ENT1HNOI   To CA-HOUSE-NUM
+                 Move ENT1HPCI   To CA-POSTCODE
+                 Move ENT1HP1I   To CA-PHONE-HOME
+                 Move ENT1HP2I   To CA-PHONE-MOBILE
+                 Move ENT1HMOI   To CA-EMAIL-ADDRESS
+                 Inspect COMM-AREA Replacing All x'00'  by x'40'
+                 Move Function UPPER-CASE(CA-POSTCODE)
+                      TO CA-POSTCODE
+                 EXEC CICS LINK PROGRAM('LGDCUS01')
+                           COMMAREA(COMM-AREA)
+                           LENGTH(32500)
+                 END-EXEC
+
+                 IF CA-RETURN-CODE > 0
+                   GO TO NO-UPD
+                 END-IF
+
+                 Move CA-CUSTOMER-NUM To ENT1CNOI
+                 Move ' '             To ENT1OPTI
+                 Move 'Customer deleted'
+                   To  ERRFLDO
+                 EXEC CICS SEND MAP ('SSMAPC1')
+                           FROM(SSMAPC1O)
+                           MAPSET ('SSMAP')
+                 END-EXEC
+                 GO TO ENDIT-STARTIT
+
              WHEN '4'
                  Move '01ICUS'   To CA-REQUEST-ID
                  Move ENT1CNOO   To CA-CUSTOMER-NUM
@@ -170,7 +231,7 @@
                            MAPSET ('SSMAP')
                  END-EXEC
                  EXEC CICS RECEIVE MAP('SSMAPC1')
-                           INTO(SSMAPC1I) ASIS
+                           INTO(SSMAPC1I) ASIS TERMINAL
                            MAPSET('SSMAP') END-EXEC
 
                  Move '01UCUS'   To CA-REQUEST-ID
@@ -193,7 +254,7 @@
                  END-EXEC
 
                  IF CA-RETURN-CODE > 0
-                   GO TO NO-UPD
+                   GO TO NO-DEL
                  END-IF
 
                  Move CA-CUSTOMER-NUM To ENT1CNOI
@@ -255,6 +316,10 @@
                 TRANSID('SSC1')
                 COMMAREA(COMM-AREA)
                 END-EXEC.
+
+       NO-DEL.
+           Move 'Error Deleting Customer'          To ERRFLDO.
+           Go To ERROR-OUT.
 
        NO-UPD.
            Move 'Error Updating Customer'          To  ERRFLDO.
